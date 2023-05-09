@@ -1,0 +1,111 @@
+﻿@page "/"
+@using TradorsInformation.DB.Entities;
+@using TradorsInformation.UI.Data;
+@inject NavigationManager NavigationManager;
+
+<PageTitle>Tradors Info</PageTitle>
+
+<div>
+    <RadzenDataGrid AllowFiltering="true"
+                    AllowColumnResize="true"
+                    AllowAlternatingRows="false"
+                    FilterMode="FilterMode.Advanced"
+                    AllowSorting="true"
+                    PagerHorizontalAlign="HorizontalAlign.Left"
+                    ShowPagingSummary="true"
+                    Data="@model"
+                    TItem="TradorInfo"
+                    ColumnWidth="300px"
+                    LogicalFilterOperator="LogicalFilterOperator.Or">
+        <Columns>
+            <RadzenDataGridColumn TItem="TradorInfo" Property="Id" Title="ID" Frozen="true" Width="80px" TextAlign="TextAlign.Center" />
+            <RadzenDataGridColumn TItem="TradorInfo" Property="Name" Title="Name" Frozen="true" Width="160px" />
+            <RadzenDataGridColumn TItem="TradorInfo" Property="Surname" Title="Surname" Frozen="true" Width="160px" />
+            <RadzenDataGridColumn TItem="TradorInfo" Property="Email" Title="Email" Frozen="true" Width="160px" />
+            <RadzenDataGridColumn TItem="TradorInfo" Property="Phone" Title="Phone" Frozen="true" Width="160px" />
+            <RadzenDataGridColumn TItem="TradorInfo" Title="Actions" TextAlign="TextAlign.Center">
+                <Template Context="data">
+                    <RadzenButton Icon="edit" Click="@((args) => EditTrador(data))" />
+                    <RadzenButton Icon="delete" Click="@((args) => DeleteTrador(data))" />
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+</div>
+<div>
+    <RadzenButton Icon="add" Click="@((args) => AddTrador(new ()))" />
+</div>
+<div>
+    @if (Add)
+    {
+        <Add></Add>
+    }
+    @if (Edit)
+    {
+        <div class="text-center item">
+            <h3 class="text-secondary">Trador info Edit</h3>
+            <EditForm Model="EditItem" class="text-center" OnValidSubmit="HandleValidationRequestedAsync">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <ValidationSummary></ValidationSummary>
+                <div class="mb-3 mt-3">
+                    <label for="@EditItem.Name" class="form-label">Name</label>
+                    <InputText @bind-Value="EditItem.Name" placeholder="Input name" class="form-control"></InputText>
+                </div>
+                <div class="mb-3 mt-3">
+                    <label for="@EditItem.Surname" class="form-label">Surname</label>
+                    <InputText @bind-Value="EditItem.Surname" placeholder="Input Surname" class="form-control"></InputText>
+                </div>
+                <div class="mb-3 mt-3">
+                    <label for="@EditItem.Email" class="form-label">Email</label>
+                    <InputText @bind-Value="EditItem.Email" placeholder="Input Email" class="form-control"></InputText>
+                </div>
+                <div class="mb-3 mt-3">
+                    <label for="@EditItem.Phone" class="form-label">Phone</label>
+                    <InputText @bind-Value="EditItem.Phone" placeholder="Input Phone" class="form-control"></InputText>
+                </div>
+                <button type="submit" class="btn btn-success">Send</button>
+            </EditForm>
+
+        </div>
+    }
+</div>
+
+
+@code {
+    IList<TradorInfo> model;
+    bool Add = false;
+    bool Edit = false;
+    TradorInfo EditItem;
+    protected override async Task OnInitializedAsync()
+    {
+
+        await base.OnInitializedAsync();
+        var response = await ApiService.Instance.GetAllTradorInfosAsync();
+        model = response;
+    }
+
+    async Task AddTrador(TradorInfo trador)
+    {
+        Add = true;
+    }
+
+    async Task EditTrador(TradorInfo trador)
+    {
+        EditItem = trador;
+        Edit = true;
+    }
+
+    async Task DeleteTrador(TradorInfo trador)
+    {
+        var response = await ApiService.Instance.DeleteTradorInfoAsync(trador.Id);
+        NavigationManager.NavigateTo("/", true);
+    }
+    private async Task HandleValidationRequestedAsync()
+    {
+        var response = await ApiService.Instance.UpdateTradorInfoAsync(EditItem.Id, EditItem);
+        if (response)
+        {
+            NavigationManager.NavigateTo("/", true);
+        }
+    }
+}

@@ -1,0 +1,44 @@
+﻿@using TradorsInformation.DB.Entities;
+@using TradorsInformation.UI.Data;
+@inject NavigationManager NavigationManager;
+
+<div class="text-center item">
+    <h3 class="text-secondary item">Trador info Add</h3>
+    <EditForm Model="modelAdd" class="text-center" OnValidSubmit="HandleValidationRequestedAsync">
+        <DataAnnotationsValidator></DataAnnotationsValidator>
+        <ValidationSummary></ValidationSummary>
+        <div class="mb-3 mt-3">
+            <label for="@modelAdd.Name" class="form-label">Name</label>
+            <InputText @bind-Value="modelAdd.Name" placeholder="Input name" class="form-control"></InputText>
+        </div>
+        <div class="mb-3 mt-3">
+            <label for="@modelAdd.Surname" class="form-label">Surname</label>
+            <InputText @bind-Value="modelAdd.Surname" placeholder="Input Surname" class="form-control"></InputText>
+        </div>
+        <div class="mb-3 mt-3">
+            <label for="@modelAdd.Email" class="form-label">Email</label>
+            <InputText @bind-Value="modelAdd.Email" placeholder="Input Email" class="form-control"></InputText>
+        </div>
+        <div class="mb-3 mt-3">
+            <label for="@modelAdd.Phone" class="form-label">Phone</label>
+            <InputText @bind-Value="modelAdd.Phone" placeholder="Input Phone" class="form-control"></InputText>
+        </div>
+        <button type="submit" class="btn btn-success">Send</button>
+    </EditForm>
+
+</div>
+
+
+@code {
+    private TradorInfo modelAdd = new();
+    ApiService service;
+
+    private async Task HandleValidationRequestedAsync()
+    {
+        var response = await ApiService.Instance.CreateTradorInfoAsync(modelAdd);
+        if (response != default(int))
+        {
+            NavigationManager.NavigateTo("/", true);
+        }
+    }
+}
